@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime
 from time import sleep
-from typing import Any
+from typing import Any, Optional
+from urllib.parse import quote_plus
 
 import requests
 
@@ -35,14 +36,31 @@ class LumenAPIManager:
         parent_id."""
         data = self._req("/topics.json")
         return data['topics']
-        
-    def _req(self, path: str) -> dict[str, Any]:
+
+    def search_entity(self,
+                      entity_name: str,
+                      page: Optional[int] = None,
+                      per_page: Optional[int] = None) -> dict[str, Any]:
+        """Return a JSON-encoded hash including an array of entities and
+        metadata about the search results."""
+        params = {"term": quote_plus(entity_name)}
+        if page:
+            params['page'] = str(page)
+        if per_page:
+            params['per_page'] = str(per_page)
+
+        return self._req("/entities/search.json", params=params)
+
+    def _req(self,
+             path: str,
+             params: Optional[dict[str, str]] = None) -> dict[str, Any]:
         """Make a request on the path on the lumen database."""
         self._wait()
 
-        logging.info(f"Requesting {path}")
+        logging.info(f"Requesting {path} with params {params}")
         req = self.session.get("https://lumendatabase.org" + path,
-                               headers=self.headers)
+                               headers=self.headers,
+                               params=params)
         self.last_req = datetime.now()
         req.raise_for_status()  # Raises exception on error
 

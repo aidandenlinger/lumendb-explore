@@ -14,5 +14,6 @@ if not api_key:
     exit(1)
 
 with LumenAPIManager(api_key) as api:
-    print(api.get_notice(1))
-    print(api.get_notice(2))
+    print(api.get_topics())
+    print(api.search_entity("Youtube Inc", per_page=50))
+    print(api.get_notice(5))
