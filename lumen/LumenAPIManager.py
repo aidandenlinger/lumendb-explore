@@ -11,10 +11,10 @@ class LumenAPIManager:
 
     def __init__(self, api_key: str):
         self.session = requests.Session()
-        self.headers = {
+        self.session.headers.update({
             "User-Agent": "CSE291BResearch",
             "X-Authentication-Token": api_key,
-        }
+        })
         self.last_req: datetime | None = None
 
     def __enter__(self):
@@ -59,7 +59,6 @@ class LumenAPIManager:
 
         logging.info(f"Requesting {path} with params {params}")
         req = self.session.get("https://lumendatabase.org" + path,
-                               headers=self.headers,
                                params=params)
         self.last_req = datetime.now()
         req.raise_for_status()  # Raises exception on error
