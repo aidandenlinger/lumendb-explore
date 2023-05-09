@@ -30,6 +30,12 @@ class LumenAPIManager:
         key articulating their type."""
         return self._req(f"/notices/{id}.json")
 
+    def get_topics(self) -> list[Any]:
+        """Return a JSON-encoded array of topics, including an id, name, and
+        parent_id."""
+        data = self._req("/topics.json")
+        return data['topics']
+        
     def _req(self, path: str) -> dict[str, Any]:
         """Make a request on the path on the lumen database."""
         self._wait()
