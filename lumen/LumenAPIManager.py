@@ -14,6 +14,7 @@ class LumenAPIManager:
         self.session.headers.update({
             "User-Agent": "CSE291BResearch",
             "X-Authentication-Token": api_key,
+            "Accept-Encoding": "gzip"
         })
         self.last_req: datetime | None = None
 
@@ -22,6 +23,10 @@ class LumenAPIManager:
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
+        """Exit a with-context block."""
+        self.close()
+
+    def close(self):
         """Close the requests session."""
         self.session.close()
 
