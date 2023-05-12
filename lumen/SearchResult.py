@@ -1,3 +1,4 @@
+from collections import Counter
 from dataclasses import dataclass
 from typing import Any, NamedTuple, Optional
 from urllib.parse import urlparse
@@ -14,7 +15,7 @@ class Notice:
     topics: list[Topic]
     tags: list[str]
     jurisdictions: list[str]
-    infringing_urls: set[str]
+    infringing_urls: Counter[str]
     works: list[str]
 
     subject: Optional[str]
@@ -38,12 +39,12 @@ def notice_from_data(data: dict[str, Any]) -> Notice:
                   tags=data['tags'],
                   jurisdictions=data['jurisdictions'],
                   action_taken=data['action_taken'],
-                  infringing_urls={
+                  infringing_urls=Counter([
                       url
                       for work in data['works']
                       for urlJSON in work['infringing_urls']
                       if (url := urlparse(urlJSON['url']).netloc)
-                  },
+                  ]),
                   works=[
                       work['description'].rstrip()
                       for work in data['works']
