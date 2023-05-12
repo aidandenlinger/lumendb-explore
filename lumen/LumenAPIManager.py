@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 from time import sleep
 from typing import Any, Optional
-from urllib.parse import quote_plus
 
 import requests
 
@@ -48,7 +47,7 @@ class LumenAPIManager:
                       per_page: Optional[int] = None) -> dict[str, Any]:
         """Return a JSON-encoded hash including an array of entities and
         metadata about the search results."""
-        params = {"term": quote_plus(entity_name)}
+        params = {"term": entity_name}
         if page:
             params['page'] = str(page)
         if per_page:
