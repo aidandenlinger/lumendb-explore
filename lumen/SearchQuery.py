@@ -180,6 +180,12 @@ class SearchQuery:
             raise Exception("Requested too many entries!")
         self.params.update({"per_page": str(num_of_entries)})
         return self
+    
+    def with_page(self, page: int) -> Self:
+        """Set the page you want. This also depends on the amount of entries per
+        page!"""
+        self.params.update({"page": str(page)})
+        return self
 
     def with_order(self, sort: Sort) -> Self:
         """Sorts the entries. (RelevancyDesc is the default option.)"""
