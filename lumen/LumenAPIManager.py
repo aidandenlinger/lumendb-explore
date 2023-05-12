@@ -7,8 +7,9 @@ import requests
 
 
 class LumenAPIManager:
+    """Manage requests to the Lumen database and timing requests."""
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, timeout: int = 2):
         self.session = requests.Session()
         self.session.headers.update({
             "User-Agent": "CSE291BResearch",
@@ -16,6 +17,7 @@ class LumenAPIManager:
             "Accept-Encoding": "gzip"
         })
         self.last_req: datetime | None = None
+        self.timeout = timeout
 
     def __enter__(self):
         """Start the session using a with-context block."""
@@ -75,11 +77,8 @@ class LumenAPIManager:
             # No requests have been made
             return
 
-        # sleeping for 1 was still giving me a timeout :(
-        timeout_amt = 2
-
         req_delta = (datetime.now() - self.last_req).total_seconds()
 
-        if req_delta < timeout_amt:
-            logging.info(f"Sleeping for {timeout_amt} seconds")
-            sleep(timeout_amt)
+        if req_delta < self.timeout:
+            logging.info(f"Sleeping for {self.timeout} seconds")
+            sleep(self.timeout)
