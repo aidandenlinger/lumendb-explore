@@ -1,93 +1,9 @@
-from dataclasses import dataclass
-from enum import StrEnum
-from typing import Any, Optional, Self
+from typing import Optional, Self
 from urllib.parse import quote_plus
 
 from lumen.LumenAPIManager import LumenAPIManager
-
-
-class Topic(StrEnum):
-    Trademark = "Trademark",
-    JohnDoe = "John Doe Anonymity",
-    Defamation = "Defamation",
-    Response = "Responses",
-    Derivative = "Derivative Works",
-    FanFiction = "Fan Fiction",
-    Domain = "Domain Names and Trademarks",
-    TradeSecret = "Trade Secret",
-    NoAction = "No Action",
-    DMCASubpoena = "DMCA Subpoenas",
-    Publicity = "Right of Publicity",
-    CourtOrder = "Court Orders",
-    ECommercePatent = "E-Commerce Patents",
-    Udrp = "UDRP",
-    Acpa = "ACPA",
-    Piracy = "Piracy or Copyright Infringement",
-    DocumentingDomain = "Documenting Your Domain Defense",
-    DMCANotice = "DMCA Notices",
-    DMCACircumvention = "Anticircumvention (DMCA)",
-    Copyright = "Copyright",
-    FairUse = "Copyright and Fair Use",
-    RevEngineering = "Reverse Engineering",
-    Criticism = "Protest, Parody and Criticism Sites",
-    Linking = "Linking",
-    LawEnforce = "Law Enforcement Requests",
-    Patent = "Patent",
-    International = "International",
-    # "правото да бъдеш забравен",
-    # "Recht Om Vergeten Te Worden",
-    # "O Pravu Osobe Da Bude Zaboravljena?",
-    # " El Derecho Al Olvido",
-    # "\"Recht auf Vergessen\" ",
-    EUPrivacy = "EU - Right to Be Forgotten",
-    DMCASafeHarbor = "DMCA Safe Harbor",
-    GovRequest = "Government Requests",
-    # "Lumen",
-    Counterfeit = "Counterfeit"
-
-
-@dataclass(frozen=True)
-class Metadata:
-    # Content owners
-    principals: list[tuple[str, int]]
-    recipients: list[tuple[str, int]]
-    # Those who actually filed the request
-    senders: list[tuple[str, int]]
-    topics: list[tuple[str, int]]
-    tags: list[tuple[str, int]]
-    countries: list[tuple[str, int]]
-    lang: list[tuple[str, int]]
-    action_taken: list[tuple[str, int]]
-
-    # Those who submitted the request to Lumen, as far as I can tell
-    submitters: list[tuple[str, int]]
-    submitter_country: list[tuple[str, int]]
-
-    # date: list[str]
-
-
-def meta_from_facets(facets: dict[str, Any]) -> Metadata:
-
-    def get_pair(name):
-        return [(entry["key"], entry["doc_count"])
-                for entry in facets[name]["buckets"] if entry["key"] != ""]
-
-    return Metadata(senders=get_pair("sender_name_facet"),
-                    recipients=get_pair("recipient_name_facet"),
-                    principals=get_pair("principal_name_facet"),
-                    submitters=get_pair("submitter_name_facet"),
-                    topics=get_pair("topic_facet"),
-                    tags=get_pair("tag_list_facet"),
-                    countries=get_pair("country_code_facet"),
-                    submitter_country=get_pair("submitter_country_code_facet"),
-                    lang=get_pair("language_facet"),
-                    action_taken=get_pair("action_taken_facet"))
-
-
-@dataclass(frozen=True)
-class SearchData:
-    metadata: Metadata
-    raw: dict[str, Any]
+from lumen.SearchResult import SearchResult
+from lumen.SearchTypes import Topic
 
 
 class SearchQuery:
@@ -260,9 +176,8 @@ class SearchQuery:
 
     # TODO: facet country code, date, language
 
-    def search(self) -> SearchData:
+    def search(self) -> SearchResult:
         if len(self.params) == 0:
             raise Exception("No search parameters!")
         data = self.manager._req("/notices/search.json", self.params)
-        return SearchData(metadata=meta_from_facets(data["meta"]["facets"]),
-                          raw=data)
+        return SearchResult(data)

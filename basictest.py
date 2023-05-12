@@ -1,7 +1,6 @@
-import json
 import logging
 from os import getenv
-from typing import Any
+from pprint import pprint
 
 from dotenv import load_dotenv
 
@@ -16,16 +15,10 @@ if not api_key:
     print("A Lumen API key needs to be in a .env file, please see the README")
     exit(1)
 
-
-def pprint(data: dict[str, Any]):
-    """Pretty print JSON."""
-    print(json.dumps(data, indent=2))
-
-
 with LumenAPIManager(api_key) as api:
     # print(api.get_topics())
     # pprint(api.search_entity("Youtube Inc", per_page=5))
     # pprint(api.get_notice(5))
-    print(
-        SearchQuery(api).with_query("star wars").with_amount(1).with_topic(
-            Topic.DMCANotice).search().metadata)
+    pprint(
+        SearchQuery(api).with_query("star wars").with_amount(5).with_topic(
+            Topic.DMCANotice).search().notices)
