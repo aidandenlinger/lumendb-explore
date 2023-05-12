@@ -1,5 +1,7 @@
+import json
 import logging
 from datetime import datetime
+from pathlib import Path
 from time import sleep
 from typing import Any, Optional
 
@@ -9,7 +11,10 @@ import requests
 class LumenAPIManager:
     """Manage requests to the Lumen database and timing requests."""
 
-    def __init__(self, api_key: str, timeout: int = 2):
+    def __init__(self,
+                 api_key: str,
+                 cache: Optional[Path] = Path("cache"),
+                 timeout: int = 2):
         self.session = requests.Session()
         self.session.headers.update({
             "User-Agent": "CSE291BResearch",
@@ -18,6 +23,9 @@ class LumenAPIManager:
         })
         self.last_req: datetime | None = None
         self.timeout = timeout
+        self.cache = cache
+        if self.cache:
+            self.cache.mkdir(exist_ok=True)
 
     def __enter__(self):
         """Start the session using a with-context block."""
@@ -60,7 +68,20 @@ class LumenAPIManager:
     def _req(self,
              path: str,
              params: Optional[dict[str, str]] = None) -> dict[str, Any]:
-        """Make a request on the path on the lumen database."""
+        """Make a request on the path on the lumen database (or load from cache)."""
+        if self.cache:
+            # Try loading from cache
+            cache_path = self.cache / (path.replace("/", "").rstrip(".json") +
+                                       str(params) + ".json")
+            try:
+                with cache_path.open() as input:
+                    logging.info(f"Cache hit on {path} with {params}")
+                    return json.load(input)
+            except FileNotFoundError:
+                # File was not found, continue to make api request
+                pass
+
+        # Not in cache (or no cache), make a request
         self._wait()
 
         logging.info(f"Requesting {path} with params {params}")
@@ -68,8 +89,15 @@ class LumenAPIManager:
                                params=params)
         self.last_req = datetime.now()
         req.raise_for_status()  # Raises exception on error
+        req_json = req.json()
 
-        return req.json()
+        # Save to cache
+        if self.cache:
+            with cache_path.open("w") as output:
+                logging.info(f"Caching at {cache_path}")
+                json.dump(req_json, output)
+
+        return req_json
 
     def _wait(self):
         """Ensure that we only make one request per second."""
