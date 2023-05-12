@@ -1,5 +1,4 @@
 from typing import Optional, Self
-from urllib.parse import quote_plus
 
 from lumen.LumenAPIManager import LumenAPIManager
 from lumen.SearchResult import SearchResult
@@ -21,7 +20,7 @@ class SearchQuery:
         terms are joined with OR - to enforce that all terms in the term query
         must be in the noice to be a match, set term_require_all to True."""
         self.params.update({
-            "term": quote_plus(term),
+            "term": term,
         })
 
         if term_require_all:
@@ -36,7 +35,7 @@ class SearchQuery:
         """Search in the title field. To require all words to match, set
         require_all to True."""
         self.params.update({
-            "title": quote_plus(title),
+            "title": title,
         })
 
         if title_require_all:
@@ -51,7 +50,7 @@ class SearchQuery:
         """Search in the topic field. To require all words to match, set
         require_all to True."""
         self.params.update({
-            "topics": quote_plus(topic),
+            "topics": topic,
         })
 
         if topic_require_all:
@@ -66,7 +65,7 @@ class SearchQuery:
         """Search in the tags field. To require all words to match, set
         require_all to True."""
         self.params.update({
-            "tags": quote_plus(tags),
+            "tags": tags,
         })
 
         if tags_require_all:
@@ -82,7 +81,7 @@ class SearchQuery:
         """Search in the jurisdictions field. To require all words to match, set
         require_all to True."""
         self.params.update({
-            "jurisdictions": quote_plus(jurisdictions),
+            "jurisdictions": jurisdictions,
         })
 
         if jurisdictions_require_all:
@@ -100,7 +99,7 @@ class SearchQuery:
         the request, not necessairly the content owner! To require all words to
         match, set require_all to True."""
         self.params.update({
-            "sender_name": quote_plus(sender),
+            "sender_name": sender,
         })
 
         if sender_require_all:
@@ -116,7 +115,7 @@ class SearchQuery:
         that owns the content! I think. To require all words to match, set
         require_all to True."""
         self.params.update({
-            "principal_name": quote_plus(principal),
+            "principal_name": principal,
         })
 
         if principal_require_all:
@@ -133,7 +132,7 @@ class SearchQuery:
         """Search in the receipient's name.  To require all words to match, set
         require_all to True."""
         self.params.update({
-            "recipient_name": quote_plus(recipient),
+            "recipient_name": recipient,
         })
 
         if recipient_require_all:
@@ -150,7 +149,7 @@ class SearchQuery:
         """Search in the work's description.  To require all words to match, set
         require_all to True."""
         self.params.update({
-            "works": quote_plus(works_desc),
+            "works": works_desc,
         })
 
         if works_require_all:
@@ -161,7 +160,7 @@ class SearchQuery:
 
     def with_action_taken(self, action_taken: str) -> Self:
         """Search based on the action taken on a notice."""
-        self.params.update({"action_taken": quote_plus(action_taken)})
+        self.params.update({"action_taken": action_taken})
 
         return self
 
