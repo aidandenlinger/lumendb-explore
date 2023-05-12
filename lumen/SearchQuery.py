@@ -1,8 +1,16 @@
+from enum import StrEnum
 from typing import Optional, Self
 
 from lumen.LumenAPIManager import LumenAPIManager
 from lumen.SearchResult import SearchResult
 from lumen.SearchTypes import Topic
+
+
+class Sort(StrEnum):
+    DateRecievedAsc = "date_received asc"
+    DateReceivedDesc = "date_received desc"
+    RelevancyAsc = "relevancy asc"
+    RelevancyDesc = "relevancy desc"
 
 
 class SearchQuery:
@@ -171,6 +179,11 @@ class SearchQuery:
             # the next page of 10000 entries, etc)
             raise Exception("Requested too many entries!")
         self.params.update({"per_page": str(num_of_entries)})
+        return self
+
+    def with_order(self, sort: Sort) -> Self:
+        """Sorts the entries. (RelevancyDesc is the default option.)"""
+        self.params.update({"sort_by": sort})
         return self
 
     # TODO: facet country code, date, language
