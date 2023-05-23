@@ -1,6 +1,7 @@
 import json
 import logging
 from datetime import datetime
+from hashlib import sha256
 from pathlib import Path
 from time import sleep
 from typing import Any, Optional
@@ -69,13 +70,18 @@ class LumenAPIManager:
              path: str,
              params: Optional[dict[str, str]] = None) -> dict[str, Any]:
         """Make a request on the path on the lumen database (or load from cache)."""
+        key = {}
+        if params:
+            key.update(params)
+        key['path'] = path
+        hash_key = sha256(json.dumps(key, sort_keys=True).encode()).hexdigest()
+
         if self.cache:
             # Try loading from cache
-            cache_path = self.cache / (path.replace("/", "").rstrip(".json") +
-                                       str(params) + ".json")
+            cache_path = self.cache / f"{hash_key}.json"
             try:
                 with cache_path.open() as input:
-                    logging.info(f"Cache hit on {path} with {params}")
+                    logging.info(f"Cache hit on {path} with {params} at {cache_path}")
                     return json.load(input)
             except FileNotFoundError:
                 # File was not found, continue to make api request
@@ -93,9 +99,11 @@ class LumenAPIManager:
 
         # Save to cache
         if self.cache:
-            with cache_path.open("w") as output:
+            with cache_path.open("w+") as output:
                 logging.info(f"Caching at {cache_path}")
                 json.dump(req_json, output)
+            with (self.cache / f"{hash_key}.metadata").open("w+") as output:
+                json.dump(key, output, sort_keys=True, indent=2)
 
         return req_json
 
