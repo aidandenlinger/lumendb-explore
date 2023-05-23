@@ -1,4 +1,5 @@
 import sys
+from datetime import date, datetime
 from typing import Optional
 
 from lumen.LumenAPIManager import LumenAPIManager
@@ -137,7 +138,21 @@ class SearchQuery:
         self.params["sort_by"] = sort
         return self
 
-    # TODO: facet country code, date, language
+    def with_date_range(self, d1: date, d2: date) -> Self:
+        """The date range. Asssumes you don't care about hours
+        or seconds, just dates."""
+        if (d1 > d2):
+            raise Exception("Start date is after end date!")
+
+        def to_epoch(d: date) -> int:
+            # We have to add hours and minutes, use min.time() to get and combine
+            # Lumen wants a timestamp in *milliseconds*, so we multiply by 1000
+            return int(datetime.combine(d, datetime.min.time()).timestamp() * 1000)
+
+        self.params["date_received_facet"] = f"{to_epoch(d1)}..{to_epoch(d2)}"
+        return self
+
+    # TODO: facet country code, language
 
     def search(self) -> SearchResult:
         if len(self.params) == 0:
