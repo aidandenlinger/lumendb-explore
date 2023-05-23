@@ -40,14 +40,14 @@ def notice_from_data(data: dict[str, Any]) -> Notice:
                   jurisdictions=data['jurisdictions'],
                   action_taken=data['action_taken'],
                   infringing_urls=Counter([
-                      url
-                      for work in data['works']
-                      for urlJSON in work['infringing_urls']
+                      url for work in data.get('works', [])
+                      for urlJSON in work.get('infringing_urls', [])
                       if (url := urlparse(urlJSON['url']).netloc)
                   ]),
                   works=[
                       work['description'].rstrip()
-                      for work in data['works']
+                      for work in data.get('works', [])
+                      if 'description' in work
                   ])
 
 
