@@ -1,9 +1,16 @@
-from enum import StrEnum
-from typing import Optional, Self
+import sys
+from typing import Optional
 
 from lumen.LumenAPIManager import LumenAPIManager
 from lumen.SearchResult import SearchResult
 from lumen.SearchTypes import Topic
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum
+    from typing import Self
+else:
+    from strenum import StrEnum
+    from typing_extensions import Self
 
 
 class Sort(StrEnum):

@@ -9,9 +9,13 @@ Create a virtual environment and enter it:
 python -m venv venv && source venv/bin/activate
 ```
 
-Install dependencies:
+Install dependencies. If you are using Python 3.11, use
 ```
 python -m pip install -r requirements.txt
+```
+If you are not, install
+```
+python -m pip install -r requirements3.10.txt
 ```
 
 Create a file named `.env` with the contents
