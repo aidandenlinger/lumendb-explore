@@ -35,16 +35,17 @@ class Topic(StrEnum):
     LawEnforce = "Law Enforcement Requests",
     Patent = "Patent",
     International = "International",
-    # "правото да бъдеш забравен",
-    # "Recht Om Vergeten Te Worden",
-    # "O Pravu Osobe Da Bude Zaboravljena?",
-    # " El Derecho Al Olvido",
-    # "\"Recht auf Vergessen\" ",
-    EUPrivacy = "EU - Right to Be Forgotten",
+    RussianRightToBeForgotten = "правото да бъдеш забравен",
+    DutchRightToBeForgotten = "Recht Om Vergeten Te Worden",
+    CroatianRightToBeForgotten = "O Pravu Osobe Da Bude Zaboravljena?",
+    SpanishRightToBeForgotten = " El Derecho Al Olvido",
+    GermanRightToBeForgotten = "\"Recht auf Vergessen\" ",
+    EURightToBeForgotten = "EU - Right to Be Forgotten",
     DMCASafeHarbor = "DMCA Safe Harbor",
     GovRequest = "Government Requests",
-    # "Lumen",
-    Counterfeit = "Counterfeit"
+    Lumen = "Lumen",
+    Counterfeit = "Counterfeit",
+    Uncategorized = "Uncategorized"
 
 
 class NoticeType(StrEnum):
