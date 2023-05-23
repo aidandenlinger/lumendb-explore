@@ -29,7 +29,7 @@ class Notice:
 
 def notice_from_data(data: dict[str, Any]) -> Notice:
     return Notice(title=data['title'],
-                  type=NoticeType(data['type']),
+                  type=NoticeType(data['type'].lower()),
                   subject=data['subject'] if "subject" in data else None,
                   body=data['body'] if "body" in data else None,
                   date_sent=data['date_sent'],

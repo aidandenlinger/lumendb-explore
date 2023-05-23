@@ -53,7 +53,7 @@ class NoticeType(StrEnum):
     CourtOrder = auto()
     DataProtection = auto()
     Defamation = auto()
-    Dmca = "DMCA"
+    Dmca = auto()
     LawEnforcementRequest = auto()
     Other = auto()
     PrivateInformation = auto()
