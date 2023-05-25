@@ -1,5 +1,4 @@
 import sys
-from enum import auto
 
 if sys.version_info >= (3, 11):
     from enum import StrEnum
@@ -49,13 +48,13 @@ class Topic(StrEnum):
 
 
 class NoticeType(StrEnum):
-    Counternotice = auto()
-    CourtOrder = auto()
-    DataProtection = auto()
-    Defamation = auto()
-    Dmca = auto()
-    LawEnforcementRequest = auto()
-    Other = auto()
-    PrivateInformation = auto()
-    GovernmentRequest = auto()
-    Trademark = auto()
+    Counternotice = "counternotice"
+    CourtOrder = "courtorder"
+    DataProtection = "dataprotection"
+    Defamation = "defamation"
+    Dmca = "dmca"
+    LawEnforcementRequest = "lawenforcementrequest"
+    Other = "other"
+    PrivateInformation = "privateinformation"
+    GovernmentRequest = "governmentrequest"
+    Trademark = "trademark"
