@@ -10,6 +10,9 @@ from lumen.SearchTypes import NoticeType, Topic
 class Notice:
     title: str
     type: NoticeType
+    sender_name: str
+    recipient_name: str
+    principal_name: Optional[str]
     date_sent: str  # dateutil could be used to parse if that'd be useful
     date_received: str
     topics: list[Topic]
@@ -30,6 +33,9 @@ class Notice:
 def notice_from_data(data: dict[str, Any]) -> Notice:
     return Notice(title=data['title'],
                   type=NoticeType(data['type'].lower()),
+                  sender_name=data['sender_name'],
+                  recipient_name=data['recipient_name'],
+                  principal_name=data['principal_name'] if "principal_name" in data else None,
                   subject=data['subject'] if "subject" in data else None,
                   body=data['body'] if "body" in data else None,
                   date_sent=data['date_sent'],
