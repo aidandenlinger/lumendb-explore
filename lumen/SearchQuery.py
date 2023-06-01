@@ -180,3 +180,8 @@ class AsyncSearchQuery(SearchQueryCore):
             raise Exception("No search parameters!")
         data = await self.manager._req("/notices/search.json", self.params)
         return SearchResult(data)
+
+    def copy(self) -> Self:
+        new = self.__class__(self.manager)
+        new.params = self.params.copy()
+        return new

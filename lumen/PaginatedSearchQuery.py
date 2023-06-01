@@ -51,8 +51,12 @@ class PaginatedSearchQuery:
 
         # Since page_end is inclusive, we need to add 1
         for page in range(self.page_start, self.page_end + 1):
+            # Make a copy of the query so the query can be changed and won't impact
+            # earlier tasks!
             tasks.append(
-                asyncio.create_task(self.query.with_page(page).search()))
+                asyncio.create_task(self.query.copy().with_page(page).search()))
+            # TODO: This is unfriendly for loading from cache. should maybe
+            # separate cache loading from requests and only sleep between requests
             await asyncio.sleep(2)
 
         data = await asyncio.gather(*tasks)
