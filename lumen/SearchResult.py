@@ -1,5 +1,7 @@
+import json
 from collections import Counter
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, NamedTuple, Optional
 from urllib.parse import urlparse
 
@@ -113,3 +115,19 @@ class SearchResult:
         self.notices = [notice_from_data(notice) for notice in data['notices']]
         self.metadata = meta_from_facets(data["meta"]["facets"])
         self.raw = data
+
+
+def load_all_cache_entries(cache: Path) -> list[Notice]:
+    """Loads all .json files from a cache and collects all of their entries
+    into a list."""
+    entries: list[Notice] = []
+
+    for file in cache.iterdir():
+        if file.suffix == ".json":
+            with file.open() as input:
+                data = json.load(input)
+                entries.extend(
+                    notice_from_data(notice)
+                    for notice in data.get('notices', []))
+
+    return entries
