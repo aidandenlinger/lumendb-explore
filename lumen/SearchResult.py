@@ -31,30 +31,31 @@ class Notice:
 
 
 def notice_from_data(data: dict[str, Any]) -> Notice:
-    return Notice(title=data['title'],
-                  type=NoticeType(data['type'].lower()),
-                  sender_name=data['sender_name'],
-                  recipient_name=data['recipient_name'],
-                  principal_name=data['principal_name'] if "principal_name" in data else None,
-                  subject=data['subject'] if "subject" in data else None,
-                  body=data['body'] if "body" in data else None,
-                  date_sent=data['date_sent'],
-                  language=data['language'],
-                  date_received=data['date_received'],
-                  topics=[Topic(topic) for topic in data['topics']],
-                  tags=data['tags'],
-                  jurisdictions=data['jurisdictions'],
-                  action_taken=data['action_taken'],
-                  infringing_urls=Counter([
-                      url for work in data.get('works', [])
-                      for urlJSON in work.get('infringing_urls', [])
-                      if (url := urlparse(urlJSON['url']).netloc)
-                  ]),
-                  works=[
-                      work['description'].rstrip()
-                      for work in data.get('works', [])
-                      if 'description' in work
-                  ])
+    return Notice(
+        title=data['title'],
+        type=NoticeType(data['type'].lower()),
+        sender_name=data['sender_name'],
+        recipient_name=data['recipient_name'],
+        principal_name=data['principal_name']
+        if "principal_name" in data else None,
+        subject=data['subject'] if "subject" in data else None,
+        body=data['body'] if "body" in data else None,
+        date_sent=data['date_sent'],
+        language=data['language'],
+        date_received=data['date_received'],
+        topics=[Topic(topic) for topic in data['topics']],
+        tags=data['tags'],
+        jurisdictions=data['jurisdictions'],
+        action_taken=data['action_taken'],
+        infringing_urls=Counter([
+            url for work in data.get('works', [])
+            for urlJSON in work.get('infringing_urls', [])
+            if (url := urlparse(urlJSON['url']).netloc)
+        ]),
+        works=[
+            work['description'].rstrip() for work in data.get('works', [])
+            if 'description' in work and work['description'] is not None
+        ])
 
 
 class NameCount(NamedTuple):
