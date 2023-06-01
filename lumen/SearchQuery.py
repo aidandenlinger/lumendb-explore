@@ -1,6 +1,6 @@
 import sys
 from datetime import date, datetime
-from typing import Optional
+from typing import Dict, Optional
 
 from lumen.LumenAPIManager import LumenAPIManager
 from lumen.SearchResult import SearchResult
@@ -27,7 +27,7 @@ class SearchQuery:
         """Start a search query. Add parameters with functions and search
             with the .search() function."""
         self.manager = manager
-        self.params: dict[str, str] = {}
+        self.params: Dict[str, str] = {}
 
     def _set_param_and_require_all(self, key: str, val: str,
                                    require_all: Optional[bool]) -> Self:
@@ -147,7 +147,8 @@ class SearchQuery:
         def to_epoch(d: date) -> int:
             # We have to add hours and minutes, use min.time() to get and combine
             # Lumen wants a timestamp in *milliseconds*, so we multiply by 1000
-            return int(datetime.combine(d, datetime.min.time()).timestamp() * 1000)
+            return int(
+                datetime.combine(d, datetime.min.time()).timestamp() * 1000)
 
         self.params["date_received_facet"] = f"{to_epoch(d1)}..{to_epoch(d2)}"
         return self

@@ -1,6 +1,6 @@
 import sys
 from datetime import date
-from typing import Optional
+from typing import List, Optional
 
 from lumen.LumenAPIManager import LumenAPIManager
 from lumen.SearchQuery import SearchQuery, Sort
@@ -42,7 +42,7 @@ class PaginatedSearchQuery:
 
     # TODO: facet country code, language
 
-    def search(self) -> list[Notice]:
+    def search(self) -> List[Notice]:
         """Search and get the collected notices for the page range. Does not return
         metadata or the raw queries."""
         notices = []

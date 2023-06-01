@@ -1,8 +1,7 @@
 import json
-from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, NamedTuple, Optional
+from typing import Any, Counter, Dict, List, NamedTuple, Optional
 from urllib.parse import urlparse
 
 from lumen.SearchTypes import NoticeType, Topic
@@ -17,11 +16,11 @@ class Notice:
     principal_name: Optional[str]
     date_sent: str  # dateutil could be used to parse if that'd be useful
     date_received: str
-    topics: list[Topic]
-    tags: list[str]
-    jurisdictions: list[str]
+    topics: List[Topic]
+    tags: List[str]
+    jurisdictions: List[str]
     infringing_urls: Counter[str]
-    works: list[str]
+    works: List[str]
 
     subject: Optional[str]
     body: Optional[str]
@@ -32,7 +31,7 @@ class Notice:
     # https://github.com/berkmancenter/lumendatabase/wiki/Lumen-API-documentation#request
 
 
-def notice_from_data(data: dict[str, Any]) -> Notice:
+def notice_from_data(data: Dict[str, Any]) -> Notice:
     return Notice(
         title=data['title'],
         type=NoticeType(data['type'].lower()),
@@ -68,25 +67,25 @@ class NameCount(NamedTuple):
 @dataclass(frozen=True)
 class Metadata:
     # Content owners
-    principals: list[NameCount]
-    recipients: list[NameCount]
+    principals: List[NameCount]
+    recipients: List[NameCount]
     # Those who actually filed the request
-    senders: list[NameCount]
-    topics: list[NameCount]
-    tags: list[NameCount]
-    countries: list[NameCount]
-    lang: list[NameCount]
-    action_taken: list[NameCount]
+    senders: List[NameCount]
+    topics: List[NameCount]
+    tags: List[NameCount]
+    countries: List[NameCount]
+    lang: List[NameCount]
+    action_taken: List[NameCount]
 
     # Those who submitted the request to Lumen, as far as I can tell
-    submitters: list[NameCount]
-    submitter_country: list[NameCount]
+    submitters: List[NameCount]
+    submitter_country: List[NameCount]
 
     # TODO
     # date: list[str]
 
 
-def meta_from_facets(facets: dict[str, Any]) -> Metadata:
+def meta_from_facets(facets: Dict[str, Any]) -> Metadata:
 
     def get_pair(name):
         return [
@@ -107,20 +106,20 @@ def meta_from_facets(facets: dict[str, Any]) -> Metadata:
 
 
 class SearchResult:
-    notices: list[Notice]
+    notices: List[Notice]
     metadata: Metadata
-    raw: dict[str, Any]
+    raw: Dict[str, Any]
 
-    def __init__(self, data: dict[str, Any]):
+    def __init__(self, data: Dict[str, Any]):
         self.notices = [notice_from_data(notice) for notice in data['notices']]
         self.metadata = meta_from_facets(data["meta"]["facets"])
         self.raw = data
 
 
-def load_all_cache_entries(cache: Path) -> list[Notice]:
+def load_all_cache_entries(cache: Path) -> List[Notice]:
     """Loads all .json files from a cache and collects all of their entries
     into a list."""
-    entries: list[Notice] = []
+    entries: List[Notice] = []
 
     for file in cache.iterdir():
         if file.suffix == ".json":

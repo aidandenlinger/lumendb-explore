@@ -4,7 +4,7 @@ from datetime import datetime
 from hashlib import sha256
 from pathlib import Path
 from time import sleep
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import requests
 
@@ -22,7 +22,7 @@ class LumenAPIManager:
             "X-Authentication-Token": api_key,
             "Accept-Encoding": "gzip"
         })
-        self.last_req: datetime | None = None
+        self.last_req: Union[datetime, None] = None
         self.timeout = timeout
         self.cache = cache
         if self.cache:
@@ -40,13 +40,13 @@ class LumenAPIManager:
         """Close the requests session."""
         self.session.close()
 
-    def get_notice(self, id: int) -> dict[str, Any]:
+    def get_notice(self, id: int) -> Dict[str, Any]:
         """Return a JSON-encoded representation of selected notice attributes.
         Notice Types will have mapped attributes applied, and be under a root
         key articulating their type."""
         return self._req(f"/notices/{id}.json")
 
-    def get_topics(self) -> list[Any]:
+    def get_topics(self) -> List[Any]:
         """Return a JSON-encoded array of topics, including an id, name, and
         parent_id."""
         data = self._req("/topics.json")
@@ -55,7 +55,7 @@ class LumenAPIManager:
     def search_entity(self,
                       entity_name: str,
                       page: Optional[int] = None,
-                      per_page: Optional[int] = None) -> dict[str, Any]:
+                      per_page: Optional[int] = None) -> Dict[str, Any]:
         """Return a JSON-encoded hash including an array of entities and
         metadata about the search results."""
         params = {"term": entity_name}
@@ -68,7 +68,7 @@ class LumenAPIManager:
 
     def _req(self,
              path: str,
-             params: Optional[dict[str, str]] = None) -> dict[str, Any]:
+             params: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
         """Make a request on the path on the lumen database (or load from cache)."""
         key = {}
         if params:
@@ -81,7 +81,8 @@ class LumenAPIManager:
             cache_path = self.cache / f"{hash_key}.json"
             try:
                 with cache_path.open() as input:
-                    logging.info(f"Cache hit on {path} with {params} at {cache_path}")
+                    logging.info(
+                        f"Cache hit on {path} with {params} at {cache_path}")
                     return json.load(input)
             except FileNotFoundError:
                 # File was not found, continue to make api request
