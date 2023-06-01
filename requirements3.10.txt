@@ -1,5 +1,4 @@
 httpx >= 0.24.1
-requests >= 2.30.0
 python-dotenv >= 1.0.0
 StrEnum
 typing-extensions
