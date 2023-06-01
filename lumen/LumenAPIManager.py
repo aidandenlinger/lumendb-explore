@@ -6,7 +6,7 @@ from pathlib import Path
 from time import sleep
 from typing import Any, Dict, List, Optional, Union
 
-import requests
+import httpx
 
 
 class LumenAPIManager:
@@ -16,12 +16,12 @@ class LumenAPIManager:
                  api_key: str,
                  cache: Optional[Path] = Path("cache"),
                  timeout: int = 2):
-        self.session = requests.Session()
-        self.session.headers.update({
+        headers = {
             "User-Agent": "CSE291BResearch",
             "X-Authentication-Token": api_key,
             "Accept-Encoding": "gzip"
-        })
+        }
+        self.session = httpx.Client(headers=headers, timeout=None)
         self.last_req: Union[datetime, None] = None
         self.timeout = timeout
         self.cache = cache
