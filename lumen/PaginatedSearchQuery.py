@@ -1,5 +1,4 @@
 import asyncio
-import copy
 import itertools
 import sys
 from datetime import date
@@ -52,11 +51,12 @@ class PaginatedSearchQuery:
 
         # Since page_end is inclusive, we need to add 1
         for page in range(self.page_start, self.page_end + 1):
-            tasks.append(asyncio.create_task(self.query.with_page(page).search()))
+            tasks.append(
+                asyncio.create_task(self.query.with_page(page).search()))
             await asyncio.sleep(2)
 
         data = await asyncio.gather(*tasks)
-        
+
         return list(itertools.chain.from_iterable(n.notices for n in data))
 
     # Boilerplate, forwards calls to the inner query

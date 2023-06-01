@@ -10,9 +10,7 @@ import httpx
 class AsyncLumenAPIManager:
     """Manage requests to the Lumen database and timing requests."""
 
-    def __init__(self,
-                 api_key: str,
-                 cache: Optional[Path] = Path("cache")):
+    def __init__(self, api_key: str, cache: Optional[Path] = Path("cache")):
         headers = {
             "User-Agent": "CSE291BResearch",
             "X-Authentication-Token": api_key,
