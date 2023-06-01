@@ -2,6 +2,7 @@ import sys
 from datetime import date, datetime
 from typing import Dict, Optional
 
+from lumen.AsyncLumenAPIManager import AsyncLumenAPIManager
 from lumen.LumenAPIManager import LumenAPIManager
 from lumen.SearchResult import SearchResult
 from lumen.SearchTypes import Topic
@@ -21,12 +22,11 @@ class Sort(StrEnum):
     RelevancyDesc = "relevancy desc"
 
 
-class SearchQuery:
+class SearchQueryCore:
 
-    def __init__(self, manager: LumenAPIManager):
+    def __init__(self) -> None:
         """Start a search query. Add parameters with functions and search
             with the .search() function."""
-        self.manager = manager
         self.params: Dict[str, str] = {}
 
     def _set_param_and_require_all(self, key: str, val: str,
@@ -155,8 +155,28 @@ class SearchQuery:
 
     # TODO: facet country code, language
 
+
+class SearchQuery(SearchQueryCore):
+
+    def __init__(self, manager: LumenAPIManager) -> None:
+        super().__init__()
+        self.manager = manager
+
     def search(self) -> SearchResult:
         if len(self.params) == 0:
             raise Exception("No search parameters!")
         data = self.manager._req("/notices/search.json", self.params)
+        return SearchResult(data)
+
+
+class AsyncSearchQuery(SearchQueryCore):
+
+    def __init__(self, manager: AsyncLumenAPIManager) -> None:
+        super().__init__()
+        self.manager = manager
+
+    async def search(self) -> SearchResult:
+        if len(self.params) == 0:
+            raise Exception("No search parameters!")
+        data = await self.manager._req("/notices/search.json", self.params)
         return SearchResult(data)
