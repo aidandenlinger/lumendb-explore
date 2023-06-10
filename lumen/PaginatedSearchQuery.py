@@ -1,9 +1,11 @@
+import asyncio
+import itertools
 import sys
 from datetime import date
 from typing import List, Optional
 
-from lumen.LumenAPIManager import LumenAPIManager
-from lumen.SearchQuery import SearchQuery, Sort
+from lumen.AsyncLumenAPIManager import AsyncLumenAPIManager
+from lumen.SearchQuery import AsyncSearchQuery, Sort
 from lumen.SearchResult import Notice
 from lumen.SearchTypes import Topic
 
@@ -15,10 +17,10 @@ else:
 
 class PaginatedSearchQuery:
 
-    def __init__(self, manager: LumenAPIManager):
+    def __init__(self, manager: AsyncLumenAPIManager):
         """Start a paginated search query. Add parameters with functions and search
             with the .search() function."""
-        self.query = SearchQuery(manager)
+        self.query = AsyncSearchQuery(manager)
         self.page_start = 1
         self.page_end = 1
 
@@ -42,17 +44,24 @@ class PaginatedSearchQuery:
 
     # TODO: facet country code, language
 
-    def search(self) -> List[Notice]:
+    async def search(self) -> List[Notice]:
         """Search and get the collected notices for the page range. Does not return
         metadata or the raw queries."""
-        notices = []
+        tasks = []
 
         # Since page_end is inclusive, we need to add 1
         for page in range(self.page_start, self.page_end + 1):
-            data = self.query.with_page(page).search()
-            notices.extend(data.notices)
+            # Make a copy of the query so the query can be changed and won't impact
+            # earlier tasks!
+            tasks.append(
+                asyncio.create_task(self.query.copy().with_page(page).search()))
+            # TODO: This is unfriendly for loading from cache. should maybe
+            # separate cache loading from requests and only sleep between requests
+            await asyncio.sleep(2)
 
-        return notices
+        data = await asyncio.gather(*tasks)
+
+        return list(itertools.chain.from_iterable(n.notices for n in data))
 
     # Boilerplate, forwards calls to the inner query
 

@@ -1,61 +1,54 @@
 import json
 import logging
-from datetime import datetime
 from hashlib import sha256
 from pathlib import Path
-from time import sleep
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import httpx
 
 
-class LumenAPIManager:
+class AsyncLumenAPIManager:
     """Manage requests to the Lumen database and timing requests."""
 
-    def __init__(self,
-                 api_key: str,
-                 cache: Optional[Path] = Path("cache"),
-                 timeout: int = 2):
+    def __init__(self, api_key: str, cache: Optional[Path] = Path("cache")):
         headers = {
             "User-Agent": "CSE291BResearch",
             "X-Authentication-Token": api_key,
             "Accept-Encoding": "gzip"
         }
-        self.session = httpx.Client(headers=headers, timeout=None)
-        self.last_req: Union[datetime, None] = None
-        self.timeout = timeout
+        self.session = httpx.AsyncClient(headers=headers, timeout=None)
         self.cache = cache
         if self.cache:
             self.cache.mkdir(exist_ok=True)
 
-    def __enter__(self):
+    async def __aenter__(self):
         """Start the session using a with-context block."""
         return self
 
-    def __exit__(self, exc_type, exc_value, exc_traceback):
+    async def __aexit__(self, exc_type, exc_value, exc_traceback):
         """Exit a with-context block."""
-        self.close()
+        await self.close()
 
-    def close(self):
+    async def close(self):
         """Close the requests session."""
-        self.session.close()
+        await self.session.aclose()
 
-    def get_notice(self, id: int) -> Dict[str, Any]:
+    async def get_notice(self, id: int) -> Dict[str, Any]:
         """Return a JSON-encoded representation of selected notice attributes.
         Notice Types will have mapped attributes applied, and be under a root
         key articulating their type."""
-        return self._req(f"/notices/{id}.json")
+        return await self._req(f"/notices/{id}.json")
 
-    def get_topics(self) -> List[Any]:
+    async def get_topics(self) -> List[Any]:
         """Return a JSON-encoded array of topics, including an id, name, and
         parent_id."""
-        data = self._req("/topics.json")
+        data = await self._req("/topics.json")
         return data['topics']
 
-    def search_entity(self,
-                      entity_name: str,
-                      page: Optional[int] = None,
-                      per_page: Optional[int] = None) -> Dict[str, Any]:
+    async def search_entity(self,
+                            entity_name: str,
+                            page: Optional[int] = None,
+                            per_page: Optional[int] = None) -> Dict[str, Any]:
         """Return a JSON-encoded hash including an array of entities and
         metadata about the search results."""
         params = {"term": entity_name}
@@ -64,11 +57,11 @@ class LumenAPIManager:
         if per_page:
             params['per_page'] = str(per_page)
 
-        return self._req("/entities/search.json", params=params)
+        return await self._req("/entities/search.json", params=params)
 
-    def _req(self,
-             path: str,
-             params: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+    async def _req(self,
+                   path: str,
+                   params: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
         """Make a request on the path on the lumen database (or load from cache)."""
         key = {}
         if params:
@@ -88,13 +81,9 @@ class LumenAPIManager:
                 # File was not found, continue to make api request
                 pass
 
-        # Not in cache (or no cache), make a request
-        self._wait()
-
         logging.info(f"Requesting {path} with params {params}")
-        req = self.session.get("https://lumendatabase.org" + path,
-                               params=params)
-        self.last_req = datetime.now()
+        req = await self.session.get("https://lumendatabase.org" + path,
+                                     params=params)
         req.raise_for_status()  # Raises exception on error
         req_json = req.json()
 
@@ -107,15 +96,3 @@ class LumenAPIManager:
                 json.dump(key, output, sort_keys=True, indent=2)
 
         return req_json
-
-    def _wait(self):
-        """Ensure that we only make one request per second."""
-        if not self.last_req:
-            # No requests have been made
-            return
-
-        req_delta = (datetime.now() - self.last_req).total_seconds()
-
-        if req_delta < self.timeout:
-            logging.info(f"Sleeping for {self.timeout} seconds")
-            sleep(self.timeout)
